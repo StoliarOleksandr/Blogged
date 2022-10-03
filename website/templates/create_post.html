@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %}New post{% endblock %}
+
+{% block content %}
+    <h1 align="Center">Make a Post</h1>
+
+    <form method="post" enctype="multipart/form-data">
+{#        <label for="category">Category:</label>#}
+{#        <div class="dropdown">#}
+{#            <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">#}
+{#             Choose post category#}
+{#            </button>#}
+{#            <ul class="dropdown-menu">#}
+{#                <li><a class="dropdown-item" href="#">Technology</a></li>#}
+{#                <li><a class="dropdown-item" href="#">Game industry</a></li>#}
+{#                <li><a class="dropdown-item" href="#">Trends</a></li>#}
+{#            </ul>#}
+{#        </div>#}
+        <label for="title">Title:</label>
+        <input type="text" name="title" id="title" class="form-control">
+        <label for="text">Text:</label>
+        <textarea name="text" id="text" class="form-control"></textarea>
+        <label for="photo">Upload photo</label>
+        <input id="photo" type="file" name="file1">
+
+        <br>
+        <div align="Center">
+            <button type="submit" class="btn btn-lg btn-primary">Post</button>
+        </div>
+    </form>
+    <br>
+    <div align="Center">
+        <a href="/home"><button type="button" class="btn btn-lg btn-secondary">Back</button></a>
+    </div>
+{% endblock %}

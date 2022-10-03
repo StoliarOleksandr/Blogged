@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile{% endblock %}
+{% block content %}
+    <div class="container d-flex justify-content-center">
+        <div class="card p-3 py-4">
+            <div class="text-center">
+                <img src="..{{ user.profile_photo_path[7:] }}" width="100" class="rounded-circle">
+                    <h3 class="mt-2">{{ user.name }} {{ user.last_name }}</h3>
+                    <span class="mt-1 clearfix">{{ user.occupation }}</span>
+
+                    <div class="row mt-3 mb-3">
+
+                      <div class="col-md-4">
+                        <h5>Posts</h5>
+                        <span class="num">{{ user.posts|length }}</span>
+                      </div>
+                      <div class="col-md-4">
+                      <h5>Likes</h5>
+                        <span class="num">{{ posts.likes|length }}</span>
+                      </div>
+                      <div class="col-md-4">
+                      <h5>Comments</h5>
+                        <span class="num">{{ user.comments|length }}</span>
+                      </div>
+
+                    </div>
+
+                    <hr class="line">
+
+                    <small class="mt-4">{{ user.about_user }}</small>
+                      <div class="social-buttons mt-5">
+                       <button class="neo-button"><i class="fa fa-facebook fa-1x"></i> </button>
+                       <button class="neo-button"><i class="fa fa-linkedin fa-1x"></i></button>
+                       <button class="neo-button"><i class="fa fa-google fa-1x"></i> </button>
+                       <button class="neo-button"><i class="fa fa-youtube fa-1x"></i> </button>
+                       <button class="neo-button"><i class="fa fa-twitter fa-1x"></i> </button>
+                      </div>
+                     <div class="profile mt-5">
+                         {% if user.id == current_user.id %}
+                         <a href="/edit-profile"><button type="button" class="profile_button px-5">Edit profile</button></a>
+                         {% else %}
+                         {% endif %}
+                     </div>
+
+                <br>
+                    {% for post in posts %}
+                        <div class="card border-dark">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <img src="..{{ post.user.profile_photo_path[7:] }}" alt="Something went wrong" height="50" width="50" class="rounded-circle">
+                            <div>
+                                <span id="likes-count-{{ post.id }}">{{ post.likes|length }}</span>
+                                {% if user.id in post.likes|map(attribute="author")|list %}
+                                    <i class="fas fa-solid fa-heart" id="like-button-{{ post.id }}" onclick="like({{ post.id }})"></i>
+                                {% else %}
+                                    <i class="far fa-heart" id="like-button-{{ post.id }}" onclick="like({{ post.id }})"></i>
+                                {% endif %}
+                                {% if user.id == post.author %}
+                                    <div class="btn-group">
+                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a href="/delete-post/{{ post.id }}" class="dropdown-item">Delete</a></li>
+                                        </ul>
+                                    </div>
+                                {% endif %}
+                            </div>
+                    </div>
+                    <div class="card-body">
+                        <img src="..{{ post.photo_path[7:] }}" alt="Something went wrong" height="400" width="400">
+                        <h5 class="card-title">
+                            {{ post.title }}
+                        </h5>
+                        <br>
+                        <div class="card-text">
+                            {{ post.text }}
+                        </div>
+                        <br>
+                        <div class="collapse" id="comments-{{ post.id }}">
+                            <div class="card">
+                                <div class="card-body" id="comment-expanded-{{ post.id }}">
+                                    {% for comment in post.comments %}
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <a href="/posts/{{ post.user.username }}">{{ comment.user.username }}</a> : {{ comment.text }}
+                                                <br>
+                                                <div class="collapse" id="reply-{{ comment.id }}">
+                                                    <div class="card">
+                                                        <div class="card-body" id="reply-expanded-{{ comment.id }}">
+                                                            {% for reply in comment.reply %}
+                                                                <a href="/posts/{{ comment.user.username }}">{{ reply.comment.user.username }}</a> : {{ reply.text }}
+                                                                {% if user.id == comment.author or user.id == post.author %}
+                                                                    <small class="text-muted">
+                                                                        {{ reply.date_created }}
+                                                                    </small>
+                                                                    <div class="btn-group">
+                                                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                                                        </button>
+                                                                        <ul class="dropdown-menu">
+                                                                            <li><a href="/delete-reply/{{ reply.id }}" class="dropdown-item">Delete</a></li>
+                                                                        </ul>
+                                                                    </div>
+                                                                {% endif %}
+                                                                <br>
+                                                            {% endfor %}
+                                                            <br>
+                                                            <form class="input-group mb-3" method="post" action="/reply-comment/{{ comment.id }}">
+                                                                <label for="reply">Reply to the comment:</label>
+                                                                <input type="text" id="reply" name="reply" class="form-control">
+                                                                <button type="submit" class="btn btn-primary">Reply</button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <p class="card-text">
+                                                    {% if comment.reply|length > 0 %}
+                                                        {% if comment.reply|length == 1 %}
+                                                            <a data-bs-toggle="collapse" href="#reply-{{ comment.id }}" role="button">
+                                                                <small>View {{ comment.reply|length }} Reply</small>
+                                                            </a>
+                                                            <br>
+                                                        {% else %}
+                                                            <a data-bs-toggle="collapse" href="#reply-{{ comment.id }}" role="button">
+                                                                <small>View {{ comment.reply|length }} Replies</small>
+                                                            </a>
+                                                            <br>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <a data-bs-toggle="collapse" href="#reply-{{ comment.id }}" role="button">
+                                                            <small>Reply</small>
+                                                        </a>
+                                                        <br>
+                                                    {% endif %}
+                                                </p>
+
+                                                </div>
+                                            <div>
+    {#                                            <span id="likes-count-{{ comment.id }}">{{ comment.likes|length }}</span>#}
+    {#                                            {% if user.id in comment.likes|map(attribute="author")|list %}#}
+    {#                                            <i class="fas fa-solid fa-heart" id="like-button-{{ comment.id }}" onclick="like({{ comment.id }})"></i>#}
+    {#                                            {% else %}#}
+    {#                                            <i class="far fa-heart" id="like-button-{{ comment.id }}" onclick="like({{ comment.id }})"></i>#}
+    {#                                            {% endif %}#}
+
+                                                <small class="text-muted">
+                                                    {{ comment.date_created }}
+                                                </small>
+                                                {% if user.id == comment.author or user.id == post.author %}
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-sm btn-primary dropdown-toggle" data-bs-toggle="dropdown">
+                                                        </button>
+                                                        <ul class="dropdown-menu">
+                                                            <li><a href="/delete-comment/{{ comment.id }}" class="dropdown-item">Delete</a></li>
+                                                        </ul>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        <br>
+                        <p class="card-text">
+                            {% if post.comments|length > 0 %}
+                                {% if post.comments|length == 1 %}
+                                    <a data-bs-toggle="collapse" href="#comments-{{ post.id }}" role="button">
+                                    <small>View {{ post.comments|length }} Comment</small>
+                                    </a>
+                                {% else %}
+                                    <a data-bs-toggle="collapse" href="#comments-{{ post.id }}" role="button">
+                                    <small>View {{ post.comments|length }} Comments</small>
+                                    </a>
+                                {% endif %}
+                            {% else %}
+                                <small class="text-muted">No Comments</small>
+                            {% endif %}
+                        </p>
+                        <form class="input-group mb-3" method="post" action="/create-comment/{{ post.id }}">
+                            <input type="text" id="comment" name="comment" class="form-control" placeholder="Comment something!">
+                            <button type="submit" class="btn btn-primary">Comment</button>
+                        </form>
+                        <br>
+                    </div>
+                    <div class="card-footer text-muted">
+                        {{ post.date_created }}
+                    </div>
+                </div>
+                <br>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
